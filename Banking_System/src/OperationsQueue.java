@@ -4,16 +4,20 @@ import java.util.ArrayList;
 public class OperationsQueue {
     private final List<Integer> operations = new ArrayList<>();
 
+    
+    /*
+    The `addSimulation` method is responsible for adding a specified 
+    number of random integers to the `operations` list, simulating the 
+    arrival of new customers, and introducing random delays between 
+    operations. 
+    */
     public void addSimulation(int totalSimulation) {
-
-        // Add 50 random numbers in the operations list. The number will be range from -100 to 100. It cannot be zero.
         for (int i = 0; i < totalSimulation; i++) {
             int random = (int) (Math.random() * 200) - 100;
             if (random != 0) {
                 operations.add(random);
             }
             System.out.println(i + ". New operation added: " + random);
-            // add small delay to simulate the time taken for a new customer to arrive
             try {
                 Thread.sleep((int) (Math.random() * 80));
             } catch (InterruptedException e) {
@@ -22,12 +26,23 @@ public class OperationsQueue {
         }
         operations.add(-9999);
     }
+
+
     public void add(int amount) {
         operations.add(amount);
     }
 
+
+
+    /*
+    the `getNextItem` is responsible for safely retrieving and removing the
+    next operation from the queue, ensuring that the queue operations are 
+    thread-safe and that threads do not continuously check for new 
+    operations, thus conserving CPU resources. 
+    */
     public synchronized int getNextItem() {
-        // add a small delay to simulate the time taken to get the next operation.
+
+        //  This loop is used to block the thread until there's an operation available in the queue.
         while(operations.isEmpty()) {
             try {
                 Thread.sleep(100);
