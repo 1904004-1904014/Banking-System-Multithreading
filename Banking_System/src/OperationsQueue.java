@@ -9,7 +9,7 @@ public class OperationsQueue {
     private final List<Integer> operations = new ArrayList<>();
     private final Lock lock = new ReentrantLock();
 
-     private final Condition notEmpty = lock.newCondition();
+    private final Condition notEmpty = lock.newCondition();
 
     /*
     The `addSimulation` method is responsible for adding a specified 
@@ -39,6 +39,8 @@ public class OperationsQueue {
         lock.lock();
         try {
             operations.add(-9999);
+            notEmpty.signalAll();  // Signal all waiting threads for termination
+            operations.add(-9999); // Add a second termination signal
             notEmpty.signalAll();  // Signal all waiting threads for termination
         } finally {
             lock.unlock();
