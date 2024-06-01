@@ -27,7 +27,8 @@ public class Main {
             bank.deposit();
         });
         depositThread.start();
-        System.out.println("coompleted");
+        // System.out.println("coompleted");
+        System.out.println("Deposit thread started.");
 
 
         // Initializes and starts a separate thread to handle the withdraw operations.
@@ -36,11 +37,23 @@ public class Main {
             bank.withdraw();
         });
         withdrawThread.start();
-        System.out.println("coompleted");
+        // System.out.println("coompleted");
+        System.out.println("Withdraw thread started.");
+
+
+        
+        // Main thread waits for simulationThread, depositThread, and withdrawThread to finish
+        try {
+            simulationThread.join(); // Wait for simulationThread to finish
+            depositThread.join(); // Wait for depositThread to finish
+            withdrawThread.join(); // Wait for withdrawThread to finish
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 
         // Prints a completion message.
-        System.out.println("coompleted");
-
+        // System.out.println("coompleted");
+        System.out.println("All threads completed.");
     }
 }
