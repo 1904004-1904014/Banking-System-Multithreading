@@ -59,38 +59,15 @@ public class OperationsQueue {
     }
 
 
-
-    /*
-    the `getNextItem` is responsible for safely retrieving and removing the
-    next operation from the queue, ensuring that the queue operations are 
-    thread-safe and that threads do not continuously check for new 
-    operations, thus conserving CPU resources. 
-    */
-    // public int getNextItem() {
-    //     lock.lock();
-    //     try {
-    //         while (operations.isEmpty()) {
-    //             lock.unlock();
-    //             try {
-    //                 Thread.sleep(100);
-    //             } catch (InterruptedException e) {
-    //                 e.printStackTrace();
-    //             }
-    //             lock.lock();
-    //         }
-    //         return operations.remove(0);
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
-
     public int getNextItem() {
         lock.lock();
         try {
             while (operations.isEmpty()) {
                 notEmpty.await();  // Wait until the queue is not empty
             }
-            return operations.remove(0);
+              int nextItem = operations.remove(0);
+              printQueue();
+              return nextItem;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread interrupted", e);
@@ -98,5 +75,7 @@ public class OperationsQueue {
             lock.unlock();
         }
     }
-
+     public synchronized void printQueue() {
+        System.out.println("Current Queue: " + operations);
+    }
 }
