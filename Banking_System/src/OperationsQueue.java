@@ -90,13 +90,18 @@ public class OperationsQueue {
             while (operations.isEmpty()) {
                 notEmpty.await();  // Wait until the queue is not empty
             }
-            return operations.remove(0);
+            int nextItem = operations.remove(0);
+            printQueue();
+            return nextItem;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Thread interrupted", e);
         } finally {
             lock.unlock();
         }
+    }
+    public synchronized void printQueue() {
+        System.out.println("Current Queue: " + operations);
     }
 
 }
