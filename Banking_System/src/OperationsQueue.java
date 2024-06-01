@@ -1,8 +1,11 @@
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class OperationsQueue {
     private final List<Integer> operations = new ArrayList<>();
+    private final Lock lock = new ReentrantLock();
 
     
     /*
@@ -15,7 +18,12 @@ public class OperationsQueue {
         for (int i = 0; i < totalSimulation; i++) {
             int random = (int) (Math.random() * 200) - 100;
             if (random != 0) {
-                operations.add(random);
+                lock.lock();
+                try {
+                    operations.add(random);
+                } finally {
+                    lock.unlock();
+                }
             }
             System.out.println(i + ". New operation added: " + random);
             try {
@@ -24,12 +32,22 @@ public class OperationsQueue {
                 e.printStackTrace();
             }
         }
-        operations.add(-9999);
+        lock.lock();
+        try {
+            operations.add(-9999);
+        } finally {
+            lock.unlock();
+        }
     }
 
 
     public void add(int amount) {
-        operations.add(amount);
+        lock.lock();
+        try {
+            operations.add(amount);
+        } finally {
+            lock.unlock();
+        }
     }
 
 
@@ -40,16 +58,22 @@ public class OperationsQueue {
     thread-safe and that threads do not continuously check for new 
     operations, thus conserving CPU resources. 
     */
-    public synchronized int getNextItem() {
-
-        //  This loop is used to block the thread until there's an operation available in the queue.
-        while(operations.isEmpty()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public int getNextItem() {
+        lock.lock();
+        try {
+            while (operations.isEmpty()) {
+                lock.unlock();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                lock.lock();
             }
+            return operations.remove(0);
+        } finally {
+            lock.unlock();
         }
-        return operations.remove(0);
     }
+
 }

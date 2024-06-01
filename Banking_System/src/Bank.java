@@ -1,10 +1,13 @@
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 public class Bank {
     String accountNumber;
-
-    OperationsQueue operationsQueue;
+    OperationsQueue operationsQueue;  
 
     int balance = 0;
+    private final Lock lock = new ReentrantLock();
 
     public Bank(String accountNumber, OperationsQueue operationsQueue) {
         this.accountNumber = accountNumber;
@@ -19,8 +22,14 @@ public class Bank {
                 break;
             }
             if (amount>0) {
-                balance =  balance + amount;
-                System.out.println("Deposited: " + amount + " Balance: " + balance);
+                lock.lock();
+                try{
+                    balance =  balance + amount;
+                    System.out.println("Deposited: " + amount + " Balance: " + balance);
+                } finally {
+                    lock.unlock();
+                }
+                
             }
             else{
                 operationsQueue.add(amount);
@@ -38,18 +47,22 @@ public class Bank {
                 break;
             }
 
-            if(balance+amount<0){
-                System.out.println("Not enough balance to deposite "+amount);
-                continue;
-            }
+            lock.lock();
+            try {
+                if (balance + amount < 0) {
+                    System.out.println("Not enough balance to withdraw " + amount);
+                    continue;
+                }
 
-            if (amount<0) {
-                balance =  balance + amount;
-                System.out.println("Withdrawn: " + amount + " Balance: " + balance);
-            }
-            else{
-                operationsQueue.add(amount);
-                System.out.println("operation added back "+amount);
+                if (amount < 0) {
+                    balance = balance + amount;
+                    System.out.println("Withdrawn: " + amount + " Balance: " + balance);
+                } else {
+                    operationsQueue.add(amount);
+                    System.out.println("operation added back " + amount);
+                }
+            } finally {
+                lock.unlock();
             }
 
         }
